@@ -6,7 +6,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * This class represents a frequency profile of an text. In the initial state,
+ * This class represents a frequency profile of a text. In the initial state,
  * n-grams of a text can be added and their numbers of occurrence will be
  * determined. Once the profile is finalized, the added n-grams are sorted in
  * reverse order of frequency and its position is stored in each n-gram.
