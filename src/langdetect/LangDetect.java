@@ -2,60 +2,103 @@ package langdetect;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedList;
 import java.util.Scanner;
 
+/**
+ * 
+ * 
+ * @author Tobias Falke
+ * 
+ */
 public class LangDetect {
 
-	public static void main(String[] args) throws FileNotFoundException {
+	private final String trainingFolder = "data/training";
 
-		Tokenizer tok = new Tokenizer(1,3);
-		
-		Profile english = new Profile("en");
-		tok.createProfile(english, new File("data/training/english.txt"));
-		System.out.println(english);
-		
-		Profile german = new Profile("de");
-		tok.createProfile(german, new File("data/training/german.txt"));
-		System.out.println(german);
-		
-		Profile french = new Profile("fr");
-		tok.createProfile(french, new File("data/training/french.txt"));
-		System.out.println(french);
-		
-		Collection<Profile> profiles = new LinkedList<Profile>();
-		profiles.add(english);
-		profiles.add(german);
-		profiles.add(french);
-		
-		Scanner input = new Scanner(System.in);
-		while(true) {
-			
-			System.out.println("Query: ");
-			String query = input.nextLine();
-			if(query.equals("exit")) {
-				break;
-			} 
-			
-			Profile pQ = new Profile("");
-			tok.createProfile(pQ, query);
-			
-			int min = Integer.MAX_VALUE;
-			Profile best = null;
-			for(Profile p : profiles) {
-				int ooP = pQ.getOutOfPlaceMeasure(p);
-				System.out.println(p.getName() + ": " + ooP);
-				if(ooP < min) {
-					min = ooP;
-					best = p;
-				}
-			}
-			System.out.println("-> " + best.getName());
-			System.out.println();
+	private Tokenizer tok;
+	private Collection<Profile> langProfiles;
+	private Scanner input;
+
+	public LangDetect() {
+		this.tok = new Tokenizer();
+		System.out.println("Initializing...");
+		String langIds = this.initProfiles(new File(this.trainingFolder));
+		System.out.println("Available languages: " + langIds);
+	}
+
+	public static void main(String[] args) {
+		LangDetect detector = new LangDetect();
+		detector.startQuerySession();
+	}
+
+	public void startQuerySession() {
+
+		String query;
+		while ((query = this.getQuery()) != null) {
+
+			Profile queryProfile = new Profile("");
+			this.tok.computeProfile(queryProfile, query);
+
+			Profile bestLangProfile = this.findBestProfile(queryProfile);
+			System.out.println(" -> " + bestLangProfile.getName());
 		}
-		input.close();
+
+		this.input.close();
+	}
+
+	private String initProfiles(File folder) {
+
+		this.langProfiles = new ArrayList<Profile>();
+		String langIds = "";
+
+		for (File file : folder.listFiles()) {
+
+			String langId = file.getName().substring(0, 2);
+			langIds += langId + ", ";
+
+			Profile profile = new Profile(langId);
+			try {
+				this.tok.computeProfile(profile, file);
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			}
+			this.langProfiles.add(profile);
+
+		}
+
+		return langIds.substring(0, langIds.length() - 2);
+	}
+
+	private String getQuery() {
+
+		if (this.input == null) {
+			this.input = new Scanner(System.in);
+		}
+
+		System.out.println(System.lineSeparator() + "Query: ");
+		String query = this.input.nextLine();
+
+		if (query.equals("exit"))
+			return null;
+		else
+			return query;
 
 	}
 
+	private Profile findBestProfile(Profile queryProfile) {
+
+		int min = Integer.MAX_VALUE;
+		Profile best = null;
+
+		for (Profile p : this.langProfiles) {
+			int ooP = queryProfile.getOutOfPlaceMeasure(p);
+			if (ooP < min) {
+				min = ooP;
+				best = p;
+			}
+		}
+
+		return best;
+	}
 }
