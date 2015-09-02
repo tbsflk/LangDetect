@@ -20,6 +20,7 @@ During the start, the program reads all texts in the specified training data fol
 ```java -cp bin langdetect.LangDetect other_training_folder```
 
 Once the frequency profiles for the training data are computed, the program prompts for queries. Text can be entered and is checked against to language profiles to identify its langauge. 
+
 The output lookes like this
 
     >java -cp bin langdetect.LangDetect
@@ -30,9 +31,11 @@ The output lookes like this
     This is a sentence in english
      1. en (16264)
      2. es (17927)
-     3. fr (18010)```
+     3. fr (18010)
+     
+    Query: (or type 'exit')
  
-and shows the three best guesses, with the corresponding out-of-place-measure given in parenthesis.
+and shows the three best guesses, with the corresponding out-of-place-measures given in parenthesis.
  
 The program can be terminated by typing *exit* as a query.
 
