@@ -22,15 +22,15 @@ During the start, the program reads all texts in the specified training data fol
 Once the frequency profiles for the training data are computed, the program prompts for queries. Text can be entered and is checked against to language profiles to identify its langauge. 
 The output lookes like this
 
-```>java -cp bin langdetect.LangDetect
-Initializing...
-Available languages: da, de, en, es, fi, fr, it, nl, pt
-
-Query: (or type 'exit')
-This is a sentence in english
- 1. en (16264)
- 2. es (17927)
- 3. fr (18010)```
+    >java -cp bin langdetect.LangDetect
+    Initializing...
+    Available languages: da, de, en, es, fi, fr, it, nl, pt
+    
+    Query: (or type 'exit')
+    This is a sentence in english
+     1. en (16264)
+     2. es (17927)
+     3. fr (18010)```
  
 and shows the three best guesses, with the corresponding out-of-place-measure given in parenthesis.
  
