@@ -41,13 +41,21 @@ public class LangDetect {
 	/**
 	 * Creates a new language detector that is initialized by reading the
 	 * provided training texts.
+	 * @throws IllegalArgumentException
+	 *         if no valid training data path is found
 	 */
-	public LangDetect(String trainingFolder) {
+	public LangDetect(String trainingFolder) throws IllegalArgumentException {
 
 		this.tok = new Tokenizer();
 
+		File folder = new File(trainingFolder);
+		if (folder == null || !folder.exists())
+			throw new IllegalArgumentException("Invalid path to training data");
+
 		System.out.println("Initializing...");
-		String langIds = this.initProfiles(new File(trainingFolder));
+		String langIds = this.initProfiles(folder);
+		if (this.langProfiles.isEmpty())
+			throw new IllegalArgumentException("No training data found in specified path");
 		System.out.println("Available languages: " + langIds);
 
 	}
@@ -69,8 +77,12 @@ public class LangDetect {
 		}
 
 		// initialize
-		LangDetect detector = new LangDetect(trainingFolder);
-		detector.startQuerySession();
+		try {
+			LangDetect detector = new LangDetect(trainingFolder);
+			detector.startQuerySession();
+		} catch (Exception e) {
+			System.out.println("Error: " + e.getMessage());
+		}
 
 	}
 
@@ -83,9 +95,15 @@ public class LangDetect {
 		while ((query = this.getQuery()) != null) {
 
 			Profile queryProfile = new Profile("");
-			this.tok.computeProfile(queryProfile, query);
+			try {
+				// compute profile and find best match
+				this.tok.computeProfile(queryProfile, query);
+				this.findBestProfile(queryProfile);
+			} catch (IllegalStateException e) {
+				// if the query does not contain any n-grams
+				System.out.println("invalid query");
+			}
 
-			this.findBestProfile(queryProfile);
 		}
 
 		this.input.close();
@@ -105,23 +123,28 @@ public class LangDetect {
 
 		// process each file in the folder
 		for (File file : folder.listFiles()) {
+			if (file.isFile()) {
 
-			// derive name from file name
-			String langId = file.getName().substring(0, 2);
-			langIds += langId + ", ";
+				// derive name from file name
+				String langId = file.getName().substring(0, 2);
+				langIds += langId + ", ";
 
-			// compute the profile
-			Profile profile = new Profile(langId);
-			try {
-				this.tok.computeProfile(profile, file);
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
+				// compute the profile
+				Profile profile = new Profile(langId);
+				try {
+					this.tok.computeProfile(profile, file);
+				} catch (FileNotFoundException e) {
+					e.printStackTrace();
+				}
+				this.langProfiles.add(profile);
+
 			}
-			this.langProfiles.add(profile);
-
 		}
 
-		return langIds.substring(0, langIds.length() - 2);
+		if (langIds.length() > 2) {
+			langIds = langIds.substring(0, langIds.length() - 2);
+		}
+		return langIds;
 	}
 
 	/**
@@ -137,7 +160,7 @@ public class LangDetect {
 		}
 
 		// read next line
-		System.out.println(System.lineSeparator() + "Query: ");
+		System.out.println(System.lineSeparator() + "Query: (or type 'exit')");
 		String query = this.input.nextLine();
 
 		// handle exit
