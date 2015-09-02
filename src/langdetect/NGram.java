@@ -28,11 +28,18 @@ public class NGram implements Comparable<NGram> {
 	 * Creates a new n-gram for the given string of characters. The count is
 	 * initialized to 1 and now position is stored yet (-1).
 	 * @param ngram
+	 * @throws IllegalArgumentException
+	 *         if no non-empty string is given
 	 */
-	public NGram(String ngram) {
+	public NGram(String ngram) throws IllegalArgumentException {
+
+		if (ngram == null || ngram.length() == 0)
+			throw new IllegalArgumentException("Gram must be specified");
+
 		this.gram = ngram;
 		this.count = 1;
 		this.pos = -1;
+
 	}
 
 	/**
@@ -93,7 +100,17 @@ public class NGram implements Comparable<NGram> {
 	 */
 	@Override
 	public int compareTo(NGram o) {
-		return o.getCount() - this.getCount();
+		if (o == null)
+			return -1;
+		else {
+			int diff = o.getCount() - this.getCount();
+			if (diff < 0)
+				return -1;
+			else if (diff > 0)
+				return 1;
+			else
+				return 0;
+		}
 	}
 
 }

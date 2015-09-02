@@ -89,7 +89,7 @@ public class Tokenizer {
 		scanner.close();
 
 		// finalize
-		profile.finalize();
+		profile.setFinalized();
 	}
 
 	/**

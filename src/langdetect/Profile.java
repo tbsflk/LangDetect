@@ -19,11 +19,11 @@ public class Profile {
 	/**
 	 * Maximum number of n-grams in a frequency profile
 	 */
-	private static final int cutOffPos = 300;
+	public static final int cutOffPos = 300;
 	/**
 	 * Out of place measure for n-grams not present in the compared profile
 	 */
-	private static final int maxOoP = 300;
+	public static final int maxOoP = 300;
 
 	/**
 	 * Name of the profile
@@ -52,7 +52,7 @@ public class Profile {
 	public Profile(String name) {
 		this.name = name;
 		this.nGramMap = new HashMap<String, NGram>();
-		this.nGramList = null;
+		this.nGramList = new LinkedList<NGram>();
 		this.finalized = false;
 	}
 
@@ -65,6 +65,14 @@ public class Profile {
 	}
 
 	/**
+	 * Returns the number of distinct n-grams in the profile.
+	 * @return number of distinct n-grams
+	 */
+	public int getNumberOfNGrams() {
+		return this.nGramMap.size();
+	}
+
+	/**
 	 * Adds an n-gram to the profile. If the n-gram is already present, its
 	 * counter is incremented. If not, it is added to the set of n-grams with a
 	 * count of 1. The new number of occurrences of the n-gram is returned.
@@ -73,9 +81,13 @@ public class Profile {
 	 * @return New number of occurrences
 	 * @throws IllegalStateException
 	 *         if the profile is already finalized
+	 * @throws IllegalArgumentException
+	 *         if ngram is null
 	 */
-	public int addNGram(String ngram) throws IllegalStateException {
+	public int addNGram(String ngram) throws IllegalStateException, IllegalArgumentException {
 
+		if (ngram == null)
+			throw new IllegalArgumentException("Gram must be specified");
 		if (this.finalized)
 			throw new IllegalStateException("Profile is already finalized");
 
@@ -97,12 +109,15 @@ public class Profile {
 	 * used to calculate the reverse-order frequency profile. The sort-order is
 	 * now available, but all n-grams after the cut-off position are lost and no
 	 * additional n-grams can be added.
+	 * @throws IllegalStateException
+	 *         if not n-grams have been added yet
 	 */
-	@Override
-	public void finalize() {
+	public void setFinalized() throws IllegalStateException {
 
 		if (this.finalized)
 			return;
+		if (this.nGramMap.size() == 0)
+			throw new IllegalStateException("Cannot be finalized, add n-grams first");
 
 		// sort all n-grams
 		List<NGram> nGramListSorted = new LinkedList<NGram>(this.nGramMap.values());
@@ -148,7 +163,7 @@ public class Profile {
 	 */
 	public int getOutOfPlaceMeasure(Profile oP) throws IllegalStateException {
 
-		if (!this.finalized || !oP.isFinalized())
+		if (!this.finalized || oP == null || !oP.finalized)
 			throw new IllegalStateException("Profile is not yet finalized");
 
 		int dist = 0;
