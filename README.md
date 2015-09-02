@@ -15,13 +15,14 @@ To start the program, download the full project and execute the following comman
 
 ```java -cp bin langdetect.LangDetect```
 
-During the start, the program reads all texts in the specified training data folder. Each text is assumed to represent a language and the file name is used to identify that language. To overwrite the default path (**data/training**), another path can be passed as a parameter:
+During the start, the program reads all texts in the specified training data folder. Each text is assumed to represent a language and the file name is used to identify that language. To overwrite the default path (*data/training*), another path can be passed as a parameter:
 
 ```java -cp bin langdetect.LangDetect other_training_folder```
 
-Once the frequency profiles for the training data are computed, the program prompts for queries. Text can be entered and is checked against to language profiles to identify its langauge. The output lookes like this
+Once the frequency profiles for the training data are computed, the program prompts for queries. Text can be entered and is checked against to language profiles to identify its langauge. 
+The output lookes like this
 
-```C:\workspace\LangDetect>java -cp bin langdetect.LangDetect
+```>java -cp bin langdetect.LangDetect
 Initializing...
 Available languages: da, de, en, es, fi, fr, it, nl, pt
 
@@ -31,9 +32,9 @@ This is a sentence in english
  2. es (17927)
  3. fr (18010)```
  
- and shows the three best guesses, with the corresponding out-of-place-measure given in parenthesis.
+and shows the three best guesses, with the corresponding out-of-place-measure given in parenthesis.
  
- The program can be terminated by typing **exit** as a query.
+The program can be terminated by typing *exit* as a query.
 
 ## Project Structure
 
